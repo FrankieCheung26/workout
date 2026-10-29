@@ -1,0 +1,12 @@
+{
+  "name": "健身房训练手册",
+  "short_name": "训练手册",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#eef5fd",
+  "theme_color": "#eef5fd",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}

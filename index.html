@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="训练手册">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#eef5fd" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141a22" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
+</head>
+<body>
+<title>健身房训练手册</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one narrow column like a pocket training notebook; tabs switch between the guide and the log.
+   Palette: airy sky-blue ground, bright blue for A日 and actions, butter yellow for B日. System fonts only, so it loads fast in mainland China. */
+:root{
+  --bg:#eef5fd; --card:#ffffff; --ink:#1f2b3d; --muted:#66758a; --line:#dbe6f3;
+  --accent:#2f80ed; --on-accent:#ffffff; --accent-soft:#e1edfd;
+  --a-day:#2f80ed; --on-a:#ffffff; --b-day:#ffd54f; --on-b:#4a3800;
+  --ok:#27ae60; --warn:#f2994a; --bad:#eb5757;
+  --f-body:"PingFang SC","HarmonyOS Sans SC","MiSans","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --f-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141a22; --card:#1c2430; --ink:#e6edf6; --muted:#97a6b8; --line:#2c3746;
+  --accent:#5a9cf5; --on-accent:#0d1520; --accent-soft:#1f2f45;
+  --a-day:#5a9cf5; --on-a:#0d1520; --b-day:#f5cf55; --on-b:#3a2c00;
+  --ok:#5fd18d; --warn:#f5b072; --bad:#f28b8b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a22; --card:#1c2430; --ink:#e6edf6; --muted:#97a6b8; --line:#2c3746;
+  --accent:#5a9cf5; --on-accent:#0d1520; --accent-soft:#1f2f45;
+  --a-day:#5a9cf5; --on-a:#0d1520; --b-day:#f5cf55; --on-b:#3a2c00;
+  --ok:#5fd18d; --warn:#f5b072; --bad:#f28b8b; color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.hero{background:var(--accent-soft);border-radius:16px;padding:18px 16px;margin-bottom:16px}
+.hero h1 span{color:var(--accent)}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+h1{font-size:1.6rem;margin:0 0 4px;text-wrap:balance;letter-spacing:.02em}
+.sub{color:var(--muted);margin:0 0 18px}
+h2{font-size:1.15rem;margin:0 0 10px;text-wrap:balance}
+h3{font-size:1rem;margin:0 0 8px}
+.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:18px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:500;padding:9px 6px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
+.tabs button:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section.panel{display:flex;flex-direction:column;gap:18px}
+.block{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.block p{margin:0}
+.day-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.tag{font-size:.78rem;font-weight:700;letter-spacing:.06em;padding:2px 9px;border-radius:999px}
+.tag.a{background:var(--a-day);color:var(--on-a)} .tag.b{background:var(--b-day);color:var(--on-b)}
+.ex{display:grid;grid-template-columns:1fr;gap:2px;padding:12px 0;border-top:1px solid var(--line)}
+.ex:first-of-type{border-top:0;padding-top:0}
+.ex .name{font-weight:700}
+.ex .meta{color:var(--muted);font-size:.85rem}
+.ex .cue{font-size:.92rem}
+.note{color:var(--muted);font-size:.88rem;margin-top:10px}
+ol.steps{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:.8rem;letter-spacing:.04em}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.bad{background:var(--bad)}
+form.entry{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field.full{grid-column:1/-1}
+label{font-size:.82rem;color:var(--muted);font-weight:500}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;box-sizing:border-box;min-width:0}
+.hint{font-size:.8rem;color:var(--accent);min-height:1.2em}
+.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:11px 16px;background:var(--accent);color:var(--on-accent);cursor:pointer}
+.btn.ghost{background:var(--accent-soft);color:var(--accent)}
+.block-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.block-head h2{margin:0}
+textarea{font:inherit;font-size:.85rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;box-sizing:border-box;min-height:140px;margin-bottom:12px}
+.btn[disabled]{opacity:.5;cursor:default}
+.status{font-size:.85rem;color:var(--muted)}
+.logs{display:flex;flex-direction:column;gap:14px}
+.day-group h3{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-weight:500}
+.row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.9fr) minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:.92rem}
+.row .w{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.row .rmk{grid-column:1/-1;color:var(--muted);font-size:.84rem;margin-top:-4px}
+.del{font:inherit;font-size:.8rem;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:3px 8px;cursor:pointer}
+.del.arm{border-color:var(--bad);color:var(--bad)}
+.empty{color:var(--muted);text-align:center;padding:18px 8px}
+@media (max-width:480px){form.entry{grid-template-columns:1fr}.row{grid-template-columns:minmax(0,1fr) auto;}.row .w,.row .feel{grid-column:1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>健身房<span>训练手册</span></h1>
+    <p class="sub" style="margin:0">目标是练出线条。从最轻的重量开始，自己找到合适的重量，再记下来。</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-guide" aria-selected="true" aria-controls="guide">动作要领</button>
+    <button role="tab" id="tab-log" aria-selected="false" aria-controls="log">训练记录</button>
+  </div>
+
+  <section class="panel" id="guide" role="tabpanel" aria-labelledby="tab-guide">
+    <div class="block">
+      <p>每次去都练全身，A日、B日交替练，两次训练之间留休息日。顺序是先臀，再背，再肩，最后核心。</p>
+    </div>
+    <div class="block" id="guide-a"></div>
+    <div class="block" id="guide-b"></div>
+    <div class="block">
+      <h2>每次练的顺序</h2>
+      <ol class="steps">
+        <li>热身：走几分钟路，每个动作先用很轻的重量做几下</li>
+        <li>先练臀：臀推、髋外展，趁体力最好的时候做</li>
+        <li>再练背：高位下拉或辅助引体，再做划船</li>
+        <li>再练肩：单臂绳索侧平举</li>
+        <li>最后练核心：平板支撑或死虫，练完拉伸放松几分钟</li>
+      </ol>
+      <p class="note">绳索高位下拉可以随时替换器械高位下拉，哪台空着用哪台。动作不多是故意的，练熟、练得开心了再加。</p>
+    </div>
+    <div class="block">
+      <h2>怎么用感觉找重量</h2>
+      <p>合适的重量是：动作能做标准，最后几下有点吃力，但动作不变形。</p>
+      <div class="tbl" style="margin-top:10px"><table>
+        <thead><tr><th>做起来的感觉</th><th>怎么调</th></tr></thead>
+        <tbody>
+          <tr><td>很轻松，好像可以一直做下去</td><td>太轻了，下次加一档</td></tr>
+          <tr><td>最后几下有点吃力，动作还很标准</td><td>刚刚好，记下这个重量</td></tr>
+          <tr><td>做到一半动作就变形、要借力甩</td><td>太重了，减一档</td></tr>
+          <tr><td>哪里有刺痛、关节不舒服</td><td>马上停，换轻的或跳过</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">同一个重量连着几次都觉得很顺了，再加一小档。不着急。</p>
+    </div>
+    <div class="block">
+      <h2>怎么判断累不累</h2>
+      <p>练完离开健身房时，感觉还能再练一点，就是对的强度。</p>
+      <div class="tbl" style="margin-top:10px"><table>
+        <thead><tr><th>信号</th><th>怎么做</th></tr></thead>
+        <tbody>
+          <tr><td><span class="dot ok"></span>累但舒服、有精神，胃口变好</td><td>保持</td></tr>
+          <tr><td><span class="dot ok"></span>第二天有点酸，一两天就好</td><td>正常，保持</td></tr>
+          <tr><td><span class="dot warn"></span>练完虚脱，很久缓不过来</td><td>下次少做一两个动作</td></tr>
+          <tr><td><span class="dot warn"></span>力量不升反降，总是很累</td><td>先多吃、多睡，不要加练</td></tr>
+          <tr><td><span class="dot bad"></span>头晕、心慌、眼前发黑</td><td>马上停下，坐下休息，吃点东西</td></tr>
+          <tr><td><span class="dot bad"></span>月经变乱或停了</td><td>去看医生</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">练前吃点东西（比如香蕉、面包），练完正常吃饭，力气会好很多。</p>
+    </div>
+  </section>
+
+  <section class="panel" id="log" role="tabpanel" aria-labelledby="tab-log" hidden>
+    <div class="block">
+      <h2>记一笔</h2>
+      <form class="entry" id="entry-form" autocomplete="off">
+        <div class="field">
+          <label for="f-date">日期</label>
+          <input type="date" id="f-date" required>
+        </div>
+        <div class="field">
+          <label for="f-day">训练日</label>
+          <select id="f-day"><option value="A">A日</option><option value="B">B日</option></select>
+        </div>
+        <div class="field full">
+          <label for="f-ex">动作</label>
+          <select id="f-ex"></select>
+          <span class="hint" id="last-hint"></span>
+        </div>
+        <div class="field">
+          <label for="f-weight">用的重量</label>
+          <input type="text" id="f-weight" placeholder="例如 15kg 或 第3档" required>
+        </div>
+        <div class="field">
+          <label for="f-feel">感受</label>
+          <select id="f-feel">
+            <option value="轻松">轻松</option>
+            <option value="刚好" selected>刚好</option>
+            <option value="太重">太重</option>
+            <option value="__custom">自己输入…</option>
+          </select>
+        </div>
+        <div class="field full" id="custom-wrap" hidden>
+          <label for="f-feel-custom">写下你的感受</label>
+          <input type="text" id="f-feel-custom" maxlength="40" placeholder="例如 最后两下有点抖">
+        </div>
+        <div class="field full">
+          <label for="f-note">备注</label>
+          <input type="text" id="f-note" maxlength="120" placeholder="选填，例如 换了绳索下拉">
+        </div>
+        <div class="field full" style="flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap">
+          <button class="btn" type="submit" id="save-btn">保存</button>
+          <span class="status" id="status"></span>
+        </div>
+      </form>
+    </div>
+    <div class="block">
+      <div class="block-head">
+        <h2>历史记录</h2>
+        <button class="btn ghost" type="button" id="copy-btn">复制全部记录</button>
+      </div>
+      <div id="copy-wrap" hidden>
+        <label for="copy-text">记录文字（可以直接粘贴到微信发出去，也可以当备份）</label>
+        <textarea id="copy-text" readonly></textarea>
+      </div>
+      <div class="logs" id="logs"><p class="empty">还没有记录。练完一个动作，在上面记一笔就会出现在这里。</p></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const EX = {
+  A: [
+    {n:"臀推", m:"臀推机 · 臀", c:"下巴微收，脚跟发力；顶到最高时夹紧臀部停一下，腰不要往上拱"},
+    {n:"髋外展", m:"髋外展器械 · 臀侧，臀部更圆", c:"坐稳，上身微微前倾更容易练到臀；往外推、收回都要慢，不靠惯性"},
+    {n:"高位下拉", m:"器械高位下拉（或绳索高位下拉）· 背阔，显腰细", c:"挺胸，用手肘往下往后拉到胸口上方；不耸肩，身体不要往后仰太多"},
+    {n:"坐姿划船", m:"器械坐姿划船 · 背阔、中背，改善圆肩驼背", c:"胸口贴住靠垫，手肘贴着身体往后拉，肩胛骨往后夹；不耸肩"},
+    {n:"单臂侧平举", m:"龙门架低位滑轮 · 肩膀侧面，肩宽显腰细", c:"先把肩膀往下沉，手肘微弯带动，只抬到和肩差不多高；不耸肩，重量宁轻勿重"},
+    {n:"平板支撑", m:"地垫 · 核心", c:"头到脚跟一条直线，收紧肚子，不塌腰、不撅屁股"}
+  ],
+  B: [
+    {n:"臀推", m:"臀推机 · 臀", c:"同A日"},
+    {n:"髋外展", m:"髋外展器械 · 臀侧，臀部更圆", c:"同A日"},
+    {n:"辅助引体向上", m:"跪姿辅助引体器械 · 背阔，显腰细", c:"这台器械选的重量越大越轻松，和其他器械相反；挺胸，拉到下巴接近横杆，慢慢放下"},
+    {n:"绳索坐姿划船", m:"绳索划船 · 背阔、中背，改善圆肩驼背", c:"坐直挺胸，手柄拉向肚脐，肩胛骨往后夹；身体不要前后晃"},
+    {n:"单臂侧平举", m:"龙门架低位滑轮 · 肩膀侧面，肩宽显腰细", c:"同A日"},
+    {n:"死虫", m:"地垫 · 核心", c:"仰卧，腰贴紧地面，对侧手脚慢慢伸直再收回"}
+  ]
+};
+
+function renderGuide(day, el){
+  const wrap = document.getElementById(el);
+  const head = document.createElement("div"); head.className = "day-head";
+  const tag = document.createElement("span"); tag.className = "tag " + day.toLowerCase(); tag.textContent = day + "日";
+  const h = document.createElement("h2"); h.style.margin = "0"; h.textContent = "动作清单";
+  head.append(tag, h); wrap.append(head);
+  EX[day].forEach(e => {
+    const d = document.createElement("div"); d.className = "ex";
+    const n = document.createElement("div"); n.className = "name"; n.textContent = e.n;
+    const m = document.createElement("div"); m.className = "meta"; m.textContent = e.m;
+    const c = document.createElement("div"); c.className = "cue"; c.textContent = e.c;
+    d.append(n, m, c); wrap.append(d);
+  });
+}
+renderGuide("A", "guide-a"); renderGuide("B", "guide-b");
+
+// tabs
+const tabs = [["tab-guide","guide"],["tab-log","log"]];
+function showTab(id){
+  tabs.forEach(([t,p]) => {
+    const on = t === id;
+    document.getElementById(t).setAttribute("aria-selected", on);
+    document.getElementById(p).hidden = !on;
+  });
+  try { localStorage.setItem("gym-tab", id); } catch(e){}
+}
+tabs.forEach(([t]) => document.getElementById(t).addEventListener("click", () => showTab(t)));
+try { const s = localStorage.getItem("gym-tab"); if (s && document.getElementById(s)) showTab(s); } catch(e){}
+
+// form
+const $ = id => document.getElementById(id);
+const today = new Date(); const pad = n => String(n).padStart(2,"0");
+$("f-date").value = today.getFullYear()+"-"+pad(today.getMonth()+1)+"-"+pad(today.getDate());
+function fillEx(){
+  const sel = $("f-ex"); sel.textContent = "";
+  EX[$("f-day").value].forEach(e => { const o = document.createElement("option"); o.value = e.n; o.textContent = e.n; sel.append(o); });
+  updateHint();
+}
+$("f-day").addEventListener("change", fillEx);
+$("f-ex").addEventListener("change", updateHint);
+$("f-feel").addEventListener("change", () => {
+  const c = $("f-feel").value === "__custom";
+  $("custom-wrap").hidden = !c; if (c) $("f-feel-custom").focus();
+});
+
+let logs = [];            // [{id, date, day, ex, weight, feel, note, ts}]
+let store = null;         // "db" | "local"
+let col = null;
+
+function updateHint(){
+  const ex = $("f-ex").value;
+  const last = logs.filter(l => l.ex === ex).sort((a,b) => (b.date+b.ts).localeCompare(a.date+a.ts))[0];
+  $("last-hint").textContent = last ? "上次（" + last.date + "）：" + last.weight + " · " + last.feel : "";
+}
+fillEx();
+
+function feelClass(f){ return f === "轻松" ? "ok" : f === "刚好" ? "ok" : f === "太重" ? "bad" : "warn"; }
+
+function renderLogs(){
+  const box = $("logs"); box.textContent = "";
+  if (!logs.length){
+    const p = document.createElement("p"); p.className = "empty";
+    p.textContent = "还没有记录。练完一个动作，在上面记一笔就会出现在这里。"; box.append(p); updateHint(); return;
+  }
+  const byDate = {};
+  logs.forEach(l => { (byDate[l.date] = byDate[l.date] || []).push(l); });
+  Object.keys(byDate).sort().reverse().forEach(date => {
+    const g = document.createElement("div"); g.className = "day-group";
+    const h = document.createElement("h3"); h.textContent = date;
+    const days = [...new Set(byDate[date].map(l => l.day))];
+    days.forEach(d => { const t = document.createElement("span"); t.className = "tag " + d.toLowerCase(); t.textContent = d + "日"; h.append(t); });
+    g.append(h);
+    byDate[date].sort((a,b) => String(a.ts).localeCompare(String(b.ts))).forEach(l => {
+      const r = document.createElement("div"); r.className = "row";
+      const ex = document.createElement("span"); ex.textContent = l.ex;
+      const w = document.createElement("span"); w.className = "w"; w.textContent = l.weight;
+      const f = document.createElement("span"); f.className = "feel";
+      const dot = document.createElement("span"); dot.className = "dot " + feelClass(l.feel);
+      f.append(dot, document.createTextNode(l.feel));
+      const del = document.createElement("button"); del.className = "del"; del.type = "button"; del.textContent = "删除";
+      del.addEventListener("click", () => {
+        if (!del.classList.contains("arm")){ del.classList.add("arm"); del.textContent = "确认删除"; setTimeout(() => { del.classList.remove("arm"); del.textContent = "删除"; }, 3000); return; }
+        removeEntry(l.id);
+      });
+      r.append(ex, w, f, del);
+      if (l.note){ const n = document.createElement("span"); n.className = "rmk"; n.textContent = l.note; r.append(n); }
+      g.append(r);
+    });
+    box.append(g);
+  });
+  updateHint();
+}
+
+// local fallback
+function loadLocal(){ try { logs = JSON.parse(localStorage.getItem("gym-logs") || "[]"); } catch(e){ logs = []; } renderLogs(); }
+function saveLocal(){ try { localStorage.setItem("gym-logs", JSON.stringify(logs)); return true; } catch(e){ return false; } }
+
+function useLocal(msg){
+  store = "local"; loadLocal();
+  $("status").textContent = msg || "记录保存在这台手机的浏览器里。";
+}
+
+async function removeEntry(id){
+  if (store === "db"){
+    try { await col.doc(id).delete(); } catch(e){ $("status").textContent = "删除没成功，请稍后再试。"; }
+  } else {
+    logs = logs.filter(l => l.id !== id); saveLocal(); renderLogs();
+  }
+}
+
+$("entry-form").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  let feel = $("f-feel").value;
+  if (feel === "__custom"){ feel = $("f-feel-custom").value.trim(); if (!feel){ $("status").textContent = "请写下你的感受，或者选一个选项。"; $("f-feel-custom").focus(); return; } }
+  const weight = $("f-weight").value.trim();
+  if (!weight){ $("status").textContent = "请填用的重量。"; return; }
+  const entry = { date: $("f-date").value, day: $("f-day").value, ex: $("f-ex").value, weight, feel, note: $("f-note").value.trim(), ts: new Date().toISOString() };
+  $("save-btn").disabled = true;
+  if (store === "db"){
+    try { await col.add(entry); $("status").textContent = "已保存。"; }
+    catch(e){
+      if (e && e.code === "invalid_argument"){ useLocal("你没有共享记录的编辑权限，这条先存在这台手机上。"); logs.push({id:"l"+Date.now(), ...entry}); saveLocal(); renderLogs(); }
+      else $("status").textContent = "保存没成功，请稍后再试。";
+    }
+  } else {
+    logs.push({ id: "l" + Date.now(), ...entry }); saveLocal(); renderLogs(); $("status").textContent = "已保存在这台手机上。";
+  }
+  $("save-btn").disabled = false;
+  $("f-weight").value = ""; $("f-note").value = ""; $("f-feel-custom").value = "";
+  $("f-feel").value = "刚好"; $("custom-wrap").hidden = true;
+});
+
+// copy all records as plain text (to send on WeChat or keep as a backup)
+$("copy-btn").addEventListener("click", () => {
+  if (!logs.length){ $("status").textContent = "还没有记录可以复制。"; return; }
+  const byDate = {};
+  logs.forEach(l => { (byDate[l.date] = byDate[l.date] || []).push(l); });
+  const lines = [];
+  Object.keys(byDate).sort().forEach(date => {
+    const days = [...new Set(byDate[date].map(l => l.day + "日"))].join("、");
+    lines.push(date + "（" + days + "）");
+    byDate[date].sort((a,b) => String(a.ts).localeCompare(String(b.ts))).forEach(l => {
+      lines.push("· " + l.ex + "：" + l.weight + "，" + l.feel + (l.note ? "（" + l.note + "）" : ""));
+    });
+    lines.push("");
+  });
+  const text = lines.join("\n").trim();
+  const ta = $("copy-text"); ta.value = text; $("copy-wrap").hidden = false;
+  ta.focus(); ta.select();
+  const done = () => { $("copy-btn").textContent = "已复制"; setTimeout(() => { $("copy-btn").textContent = "复制全部记录"; }, 2000); };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, () => { try { if (document.execCommand("copy")) done(); } catch(e){} });
+    } else if (document.execCommand("copy")) done();
+  } catch(e){}
+});
+
+// storage: shared db when available, otherwise this browser
+useLocal("正在连接记录…");
+(async () => {
+  let db = null;
+  try { db = await window.claude?.use?.("db"); } catch(e){ db = null; }
+  if (!db){ useLocal(); return; }
+  col = db.collection("logs");
+  store = "db";
+  $("status").textContent = "";
+  col.onSnapshot(snap => {
+    logs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderLogs();
+  }, () => useLocal("连接中断，记录先存在这台手机上。"));
+})();
+</script>
+
+</body>
+</html>
